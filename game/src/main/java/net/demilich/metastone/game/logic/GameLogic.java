@@ -1830,6 +1830,7 @@ public class GameLogic implements Cloneable, Serializable, IdFactory {
 			minion.getAttributes().remove(Attribute.TEMPORARY_ATTACK_BONUS);
 			handleFrozen(minion);
 			handleWithered(minion);
+			stealthForTurns(minion);
 		}
 		player.getAttributes().remove(Attribute.COMBO);
 		hero.activateWeapon(false);
@@ -3636,6 +3637,7 @@ public class GameLogic implements Cloneable, Serializable, IdFactory {
 		int sourcePlayerId = source == null ? -1 : source.getOwner();
 		if (attr == Attribute.STEALTH) {
 			context.fireGameEvent(new LoseStealthEvent(context, entity, sourcePlayerId));
+			removeAttribute(entity, source, Attribute.STEALTH_FOR_TURNS);
 		}
 
 		if (attr == Attribute.DEFLECT) {
@@ -4439,13 +4441,18 @@ public class GameLogic implements Cloneable, Serializable, IdFactory {
 		entity.getAttributes().remove(Attribute.DRAINED_THIS_TURN);
 	}
 
+	// is now called at the end AND start of the owner's turn
 	@Suspendable
 	protected void stealthForTurns(Entity actor) {
-		if (actor.hasAttribute(Attribute.STEALTH) && actor.hasAttribute(Attribute.STEALTH_FOR_TURNS)) {
+		if (actor.hasAttribute(Attribute.STEALTH)) {
+			if (!actor.hasAttribute(Attribute.STEALTH_FOR_TURNS)) {
+				actor.setAttribute(Attribute.STEALTH_FOR_TURNS, 3);
+			}
+
 			int stealthForTurns = actor.getAttributeValue(Attribute.STEALTH_FOR_TURNS);
 			if (stealthForTurns == 1) {
 				removeAttribute(actor, null, Attribute.STEALTH);
-				removeAttribute(actor, null, Attribute.STEALTH_FOR_TURNS);
+				//removeAttribute(actor, null, Attribute.STEALTH_FOR_TURNS); now handled in the above
 			} else {
 				actor.setAttribute(Attribute.STEALTH_FOR_TURNS, stealthForTurns - 1);
 			}
