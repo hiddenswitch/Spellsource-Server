@@ -19,7 +19,24 @@ Read [the latest changes here](www/src/pages-markdown/whatsnew.md) or the deploy
 The `Spellsource-Server` project is a 2-player card battler that supports hosted, networked gameplay. It features rudimentary matchmaking, collection management and support for game mechanics that persist between matches.
 
 See the complete code reference [here](https://www.playspellsource.com/javadoc).
- 
+
+### Tasks
+
+```shell script
+$ ./gradlew tasks --group contributors
+------------------------------------------------------------
+Tasks runnable from root project
+------------------------------------------------------------
+
+Contributors tasks
+------------------
+netRun - Starts the Spellsource server
+netRunDebug - Starts the Spellsource server attachable as a Remote debug target from IntelliJ
+testAll - Runs all tests. Make sure mongod is running. When testing custom cards, failed fuzzing results are put in cards/src/test/resources/traces by testRandomMassPlay.
+
+To see all tasks and more detail, run gradle tasks --all
+```
+
 ### Getting started with Development on macOS
 
 Requirements: Java 11 or later, Mongo Community Edition 3.6, Python 3.7 or later, Node 10 or later.
@@ -42,6 +59,27 @@ Visit the [Contribution Guide](www/src/pages-markdown/contribute.md) for more ab
 ### Deployment
 
 Use `./gradlew tasks --group spellsource` to see all deployment related tasks. You will need to be an Administrative user for these.
+
+### Troubleshooting
+
+> I am seeing issues with too many files open.
+
+On macOS, issue the following commands to increase your per-process limits:
+
+```shell script
+sudo sysctl -w kern.maxfiles=5242880
+sudo sysctl -w kern.maxfilesperproc=524288
+ulimit -n 200000
+sudo launchctl limit maxfiles 524288 5242880
+```
+
+> All the tests in `net:test` fail or take too long to complete.
+
+Make sure you are running `mongo`.
+
+> `testTraces` is failing.
+
+You had failures in `testRandomMassPlay`, the fuzzer for Spellsource. These are real issues.
 
 ### Special Thanks
 
