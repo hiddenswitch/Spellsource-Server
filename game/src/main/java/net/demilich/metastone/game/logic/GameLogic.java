@@ -379,6 +379,10 @@ public class GameLogic implements Cloneable, Serializable, IdFactory {
 			entity.modifyAttribute(Attribute.NUMBER_OF_ATTACKS, numberOfAttacks);
 		}
 
+		if (attr == Attribute.STEALTH) {
+			removeAttribute(entity, source, Attribute.STEALTH_FOR_TURNS);
+		}
+
 		entity.setAttribute(attr);
 		context.fireGameEvent(new AttributeAppliedEvent(context, entity.getOwner(), entity, source, attr));
 	}
@@ -1831,6 +1835,7 @@ public class GameLogic implements Cloneable, Serializable, IdFactory {
 		}
 		handleFrozen(hero);
 		handleWithered(hero);
+		stealthForTurns(hero);
 		for (Minion minion : player.getMinions()) {
 			minion.getAttributes().remove(Attribute.TEMPORARY_ATTACK_BONUS);
 			handleFrozen(minion);

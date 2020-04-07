@@ -7,11 +7,10 @@
   "baseHp": 7,
   "rarity": "COMMON",
   "race": "BEAST",
-  "description": "Toxic. Hidden for 1 turn.",
+  "description": "Toxic, Hidden.",
   "attributes": {
     "POISONOUS": true,
-    "STEALTH": true,
-    "STEALTH_FOR_TURNS": 1
+    "STEALTH": true
   },
   "collectible": true,
   "set": "SPELLSOURCE_BASIC",

@@ -7,7 +7,7 @@
   "baseHp": 1,
   "rarity": "COMMON",
   "race": "BEAST",
-  "description": "Opener: Give a Dragon Hidden until your next turn.",
+  "description": "Opener: Give a Dragon Hidden.",
   "battlecry": {
     "targetSelection": "MINIONS",
     "spell": {
@@ -16,10 +16,6 @@
       "filter": {
         "class": "RaceFilter",
         "race": "DRAGON"
-      },
-      "revertTrigger": {
-        "class": "TurnStartTrigger",
-        "targetPlayer": "SELF"
       }
     }
   },

@@ -4,18 +4,14 @@
   "type": "SPELL",
   "heroClass": "CAMO",
   "rarity": "FREE",
-  "description": "Give a minion Hidden for a turn. Draw a card",
+  "description": "Give a minion Hidden. Draw a card",
   "targetSelection": "MINIONS",
   "spell": {
     "class": "MetaSpell",
     "spells": [
       {
         "class": "AddAttributeSpell",
-        "attribute": "STEALTH",
-        "revertTrigger": {
-          "class": "TurnStartTrigger",
-          "targetPlayer": "SELF"
-        }
+        "attribute": "STEALTH"
       },
       {
         "class": "DrawCardSpell",

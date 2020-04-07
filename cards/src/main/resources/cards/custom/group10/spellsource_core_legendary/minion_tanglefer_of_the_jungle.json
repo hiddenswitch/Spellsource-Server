@@ -6,7 +6,7 @@
   "baseAttack": 7,
   "baseHp": 4,
   "rarity": "LEGENDARY",
-  "description": "Hidden. Whenever this loses Hidden, give your champion Hidden until your next turn.",
+  "description": "Hidden. Whenever this loses Hidden, give your champion Hidden.",
   "trigger": {
     "eventTrigger": {
       "class": "LoseStealthTrigger",
@@ -15,11 +15,7 @@
     "spell": {
       "class": "AddAttributeSpell",
       "target": "FRIENDLY_HERO",
-      "attribute": "STEALTH",
-      "revertTrigger": {
-        "class": "TurnStartTrigger",
-        "targetPlayer": "SELF"
-      }
+      "attribute": "STEALTH"
     }
   },
   "attributes": {

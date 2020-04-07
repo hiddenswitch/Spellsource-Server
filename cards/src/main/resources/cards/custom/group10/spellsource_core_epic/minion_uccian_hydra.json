@@ -7,7 +7,7 @@
   "baseHp": 3,
   "rarity": "EPIC",
   "race": "BEAST",
-  "description": "Hidden for 1 turn. Whenever a minion with more Attack than this dies, double this minion's stats.",
+  "description": "Hidden. Whenever a minion with more Attack than this dies, double this minion's stats.",
   "trigger": {
     "eventTrigger": {
       "class": "MinionDeathTrigger",
@@ -45,8 +45,7 @@
     }
   },
   "attributes": {
-    "STEALTH": true,
-    "STEALTH_FOR_TURNS": 1
+    "STEALTH": true
   },
   "collectible": true,
   "set": "SPELLSOURCE_BASIC",

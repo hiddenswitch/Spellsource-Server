@@ -6,7 +6,7 @@
   "baseAttack": 1,
   "baseHp": 2,
   "rarity": "RARE",
-  "description": "Hidden for 1 turn. Whenever your champion takes damage, restore #2 Health to it.",
+  "description": "Hidden. Whenever your champion takes damage, restore #2 Health to it.",
   "trigger": {
     "eventTrigger": {
       "class": "DamageReceivedTrigger",
@@ -21,8 +21,7 @@
     "maxFiresPerSequence": 15
   },
   "attributes": {
-    "STEALTH": true,
-    "STEALTH_FOR_TURNS": 1
+    "STEALTH": true
   },
   "collectible": true,
   "set": "VERDANT_DREAMS",

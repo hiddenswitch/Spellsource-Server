@@ -4,7 +4,7 @@
   "type": "SPELL",
   "heroClass": "BLUEGREY",
   "rarity": "FREE",
-  "description": "Give a minion +3 Attack and Hidden for a turn.",
+  "description": "Give a minion +3 Attack and Hidden.",
   "targetSelection": "MINIONS",
   "spell": {
     "class": "MetaSpell",
@@ -15,11 +15,7 @@
       },
       {
         "class": "AddAttributeSpell",
-        "attribute": "STEALTH",
-        "revertTrigger": {
-          "class": "TurnStartTrigger",
-          "targetPlayer": "SELF"
-        }
+        "attribute": "STEALTH"
       }
     ]
   },

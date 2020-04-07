@@ -4,7 +4,7 @@
   "type": "SPELL",
   "heroClass": "CAMO",
   "rarity": "EPIC",
-  "description": "Put a copy of your minions into your hand. Then, give your minions Hidden for a turn.",
+  "description": "Put a copy of your minions into your hand. Then, give your minions Hidden.",
   "targetSelection": "NONE",
   "spell": {
     "class": "MetaSpell",
@@ -16,11 +16,7 @@
       {
         "class": "AddAttributeSpell",
         "target": "FRIENDLY_MINIONS",
-        "attribute": "STEALTH",
-        "revertTrigger": {
-          "class": "TurnStartTrigger",
-          "targetPlayer": "SELF"
-        }
+        "attribute": "STEALTH"
       }
     ]
   },

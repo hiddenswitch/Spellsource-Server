@@ -4,7 +4,7 @@
   "type": "SPELL",
   "heroClass": "BLUEGREY",
   "rarity": "RARE",
-  "description": "Take 2 damage. Give your champion Hidden until your next turn.",
+  "description": "Take 2 damage. Give your champion Hidden.",
   "targetSelection": "NONE",
   "spell": {
     "class": "MetaSpell",
@@ -18,11 +18,7 @@
       {
         "class": "AddAttributeSpell",
         "target": "FRIENDLY_HERO",
-        "attribute": "STEALTH",
-        "revertTrigger": {
-          "class": "TurnStartTrigger",
-          "targetPlayer": "SELF"
-        }
+        "attribute": "STEALTH"
       }
     ]
   },
