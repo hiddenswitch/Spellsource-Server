@@ -5042,4 +5042,20 @@ public class CustomCardsTests extends TestBase {
 			assertTrue(sum >= 15 || player.getHand().size() == 10, "" + sum);
 		});
 	}
+
+	@Test
+	public void testWeirdIssue1705Interaction() {
+		runGym((context, player, opponent) -> {
+			shuffleToDeck(context, player, "minion_uusyai_the_illustrious");
+			context.fireGameEvent(new GameStartEvent(context, player.getId())); //uusyai now has the spell effect
+			context.getLogic().drawCard(player.getId(), null);
+			receiveCard(context, player, "minion_hoffis_the_dunewalker");
+			context.setDeckFormat(new FixedCardsDeckFormat("spell_earworm"));
+			playCard(context, player, player.getHand().get(1)); //play hoffis, giving uusyai the sandpile effect
+			assertEquals(1, player.getMinions().size());
+			playCard(context, player, player.getHand().get(0));
+			assertEquals(3, player.getMinions().size()); //uusyai didn't get destroyed
+			assertEquals("minion_uusyai_the_illustrious", player.getMinions().get(1).getSourceCard().getCardId());
+		});
+	}
 }
