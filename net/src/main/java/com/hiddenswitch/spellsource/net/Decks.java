@@ -134,6 +134,12 @@ public interface Decks {
 			final String deckId = createCollectionResponse.getCollectionId();
 			Mongo.mongo().updateCollection(Accounts.USERS, json("_id", userId), json("$addToSet", json("decks", deckId)));
 
+			if (request.getSignature() != null) {
+				JsonObject collectionUpdate = new JsonObject();
+				jsonPut(collectionUpdate, "$set", json("playerEntityAttributes.SIGNATURE", request.getSignature()));
+				mongo().updateCollection(Inventory.COLLECTIONS, json("_id", deckId), collectionUpdate);
+			}
+
 			// Get the collection
 			GetCollectionResponse getCollectionResponse = Inventory
 					.getCollection(new GetCollectionRequest().withUserId(userId).withDeckId(createCollectionResponse.getCollectionId()));

@@ -1,5 +1,7 @@
 package net.demilich.metastone.game.decks;
 
+import net.demilich.metastone.game.cards.Attribute;
+import net.demilich.metastone.game.cards.AttributeMap;
 import net.demilich.metastone.game.cards.Card;
 import net.demilich.metastone.game.cards.CardCatalogue;
 import com.hiddenswitch.spellsource.client.models.CardType;
@@ -37,6 +39,7 @@ public class DeckCreateRequest implements Serializable, Cloneable {
 	private boolean isStandardDeck;
 	private List<String> inventoryIds = new ArrayList<>();
 	private List<String> cardIds = new ArrayList<>();
+	private String signature;
 
 	/**
 	 * Creates a deck list from a specified community format.
@@ -85,7 +88,7 @@ public class DeckCreateRequest implements Serializable, Cloneable {
 		DeckCreateRequest request = new DeckCreateRequest()
 				.withCardIds(new ArrayList<>());
 		// Parse with a regex
-		String regex = "(?:^(?:###*|#*\\s?[Nn]ame:)\\s?(?<name>.+)$)|(?:[Cc]lass:\\s?(?<heroClass>\\w+)$)|(?:[Hh]ero:\\s?(?<heroCard>.+$))|(?:[Ff]ormat:\\s?(?<format>\\w+))|(?:(?<count>\\d+)x(\\s?\\(\\d*\\))?\\s?(?<cardName>.+$))";
+		String regex = "(?:^(?:###*|#*\\s?[Nn]ame:)\\s?(?<name>.+)$)|(?:[Cc]lass:\\s?(?<heroClass>\\w+)$)|(?:[Hh]ero:\\s?(?<heroCard>.+$))|(?:[Ff]ormat:\\s?(?<format>\\w+))|(?:(?<count>\\d+)x(\\s?\\(\\d*\\))?\\s?(?<cardName>.+$))(?:[Ss]ignature:\\s?(?<signature>.+$))|";
 		Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
 		Matcher matcher = pattern.matcher(deckList);
 		List<Throwable> errors = new ArrayList<>();
@@ -185,6 +188,12 @@ public class DeckCreateRequest implements Serializable, Cloneable {
 				for (int i = 0; i < count; i++) {
 					request.getCardIds().add(cardId);
 				}
+			}
+
+			if (matcher.group("signature") != null) {
+				final String signature = matcher.group("signature");
+				String cardId = CardCatalogue.getCardByName(signature).getCardId();
+				request.setSignature(cardId);
 			}
 		}
 
@@ -315,6 +324,9 @@ public class DeckCreateRequest implements Serializable, Cloneable {
 			deck.setHeroCard((Card) CardCatalogue.getCardById(getHeroCardId()));
 		}
 		getCardIds().forEach(cardId -> deck.getCards().addCard(CardCatalogue.getCardById(cardId)));
+		if (getSignature() != null) {
+			deck.setPlayerAttributes(new AttributeMap(Map.of(Attribute.SIGNATURE, getSignature())));
+		}
 		deck.setFormat(DeckFormat.getFormat(format));
 		return deck;
 	}
@@ -373,5 +385,13 @@ public class DeckCreateRequest implements Serializable, Cloneable {
 	public DeckCreateRequest setStandardDeck(boolean standardDeck) {
 		isStandardDeck = standardDeck;
 		return this;
+	}
+
+	public String getSignature() {
+		return signature;
+	}
+
+	public void setSignature(String signature) {
+		this.signature = signature;
 	}
 }
