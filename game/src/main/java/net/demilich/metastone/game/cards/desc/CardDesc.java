@@ -31,6 +31,7 @@ import net.demilich.metastone.game.spells.desc.SpellDesc;
 import net.demilich.metastone.game.spells.desc.aura.AuraDesc;
 import net.demilich.metastone.game.spells.desc.condition.Condition;
 import net.demilich.metastone.game.spells.desc.condition.ConditionDesc;
+import net.demilich.metastone.game.spells.desc.condition.InvokeCondition;
 import net.demilich.metastone.game.spells.desc.manamodifier.CardCostModifierDesc;
 import net.demilich.metastone.game.spells.desc.trigger.EnchantmentDesc;
 import net.demilich.metastone.game.spells.desc.trigger.EventTriggerDesc;
@@ -1045,41 +1046,48 @@ public final class CardDesc /*extends AbstractMap<CardDescArg, Object>*/ impleme
 	/**
 	 * Iterates through the most important conditions on the card, heuristically.
 	 * <p>
-	 * This includes spell conditions ({@link #getCondition()}, opener conditions {@link OpenerDesc#getCondition()},
+	 * This includes opener conditions {@link OpenerDesc#getCondition()},
 	 * {@link ComboSpell} and condition arguments specified on subspells.
+	 *
+	 * This no longer includes {@link #getCondition()} because that determines whether
+	 * the spell is playable at all.
 	 *
 	 * @return A stream.
 	 */
 	@JsonIgnore
 	public Stream<Condition> getGlowConditions() {
 		if (glowConditions == null) {
-			glowConditions = bfs()
-					.build()
-					.filter(node -> {
-						if (node.getDepth() >= 3) {
-							return false;
-						}
+			if (attributes.containsKey(Attribute.INVOKE)) {
+				glowConditions = new ArrayList<>();
+				glowConditions.add(new ConditionDesc(InvokeCondition.class).create());
+			} else {
+				glowConditions = bfs()
+						.build()
+						.filter(node -> {
+							if (node.getDepth() >= 5 || (battlecry == null && node.getDepth() >= 3)) {
+								return false;
+							}
 
-						if (node.getParent() == null || (!(node.getParent().getValue() instanceof OpenerDesc)
-								&& !(node.getParent().getValue() instanceof CardDesc))) {
-							return false;
-						}
+							if (node.getParent() == null || node.getParent().getValue() instanceof CardDesc) {
+								return false;
+							}
 
-						if (node.getValue() instanceof Condition || node.getValue() instanceof ConditionDesc) {
-							return true;
-						}
-						return false;
-					})
-					.map(node -> {
-						var conditionObj = node.getValue();
-						if (conditionObj instanceof ConditionDesc) {
-							return ((ConditionDesc) conditionObj).create();
-						} else if (conditionObj instanceof Condition) {
-							return (Condition) conditionObj;
-						}
-						return null;
-					}).filter(Objects::nonNull)
-					.collect(toList());
+							if (node.getValue() instanceof Condition || node.getValue() instanceof ConditionDesc) {
+								return true;
+							}
+							return false;
+						})
+						.map(node -> {
+							var conditionObj = node.getValue();
+							if (conditionObj instanceof ConditionDesc) {
+								return ((ConditionDesc) conditionObj).create();
+							} else if (conditionObj instanceof Condition) {
+								return (Condition) conditionObj;
+							}
+							return null;
+						}).filter(Objects::nonNull)
+						.collect(toList());
+			}
 		}
 		return glowConditions.stream();
 	}

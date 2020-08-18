@@ -713,7 +713,21 @@ public interface Games extends Verticle {
 
 		// Put the condition met glow on the card
 		if (card.getZone() == Zones.HAND && entity.isPlayable()) {
-			entity.conditionMet(workingContext.getLogic().conditionMet(localPlayerId, card));
+			List<Float> playableColor = Arrays.asList(0f, 1f, 0f);
+			List<Float> defaultGlowColor = Arrays.asList(1f, .92f, .016f);
+			List<Float> invokeGlowColor = Arrays.asList(1f, 0f, 1f);
+			List<Float> imbueGlowColor = Arrays.asList(1f, 0.7f, 0f);
+			if (workingContext.getLogic().conditionMet(localPlayerId, card)) {
+				if (card.hasAttribute(Attribute.INVOKE)) {
+					entity.glowColor(invokeGlowColor);
+				} else if (card.hasAttribute(Attribute.IMBUE)) {
+					entity.glowColor(imbueGlowColor);
+				} else {
+					entity.glowColor(defaultGlowColor);
+				}
+			} else entity.glowColor(playableColor);
+		} else {
+			entity.glowColor(null);
 		}
 
 		// Handles tri-class cards correctly

@@ -1725,10 +1725,13 @@ definitions:
         description: When true, indicates the card can be played, or the hero / minion can initiate a physical attack.
         type: 'boolean'
         default: false
-      conditionMet:
-        description: When true, indicates that a condition written on the card is met and the player should be informed.
-        type: 'boolean'
-        default: false
+      glowColor:
+        description: |
+          The current color that this card should be glowing (null if it should not be glowing)
+        type: 'array'
+        items:
+          type: 'number'
+          format: 'float'
       mana:
         description: The player's current mana.
         type: 'integer'
