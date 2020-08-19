@@ -54,6 +54,9 @@ public class Art implements Serializable {
   @JsonProperty("body")
   private Font body = null;
 
+  @JsonProperty("glow")
+  private Color glow = null;
+
   public Art sprite(Sprite sprite) {
     this.sprite = sprite;
     return this;
@@ -180,6 +183,24 @@ public class Art implements Serializable {
     this.body = body;
   }
 
+  public Art glow(Color glow) {
+    this.glow = glow;
+    return this;
+  }
+
+   /**
+   * Get glow
+   * @return glow
+  **/
+  @ApiModelProperty(value = "")
+  public Color getGlow() {
+    return glow;
+  }
+
+  public void setGlow(Color glow) {
+    this.glow = glow;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -196,12 +217,13 @@ public class Art implements Serializable {
         Objects.equals(this.secondary, art.secondary) &&
         Objects.equals(this.highlight, art.highlight) &&
         Objects.equals(this.shadow, art.shadow) &&
-        Objects.equals(this.body, art.body);
+        Objects.equals(this.body, art.body) &&
+        Objects.equals(this.glow, art.glow);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(sprite, spriteShadow, primary, secondary, highlight, shadow, body);
+    return Objects.hash(sprite, spriteShadow, primary, secondary, highlight, shadow, body, glow);
   }
 
 
@@ -217,6 +239,7 @@ public class Art implements Serializable {
     sb.append("    highlight: ").append(toIndentedString(highlight)).append("\n");
     sb.append("    shadow: ").append(toIndentedString(shadow)).append("\n");
     sb.append("    body: ").append(toIndentedString(body)).append("\n");
+    sb.append("    glow: ").append(toIndentedString(glow)).append("\n");
     sb.append("}");
     return sb.toString();
   }

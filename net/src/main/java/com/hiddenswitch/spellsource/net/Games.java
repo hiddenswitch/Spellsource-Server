@@ -710,24 +710,10 @@ public interface Games extends Verticle {
 		entity.taunt(card.hasAttribute(Attribute.TAUNT));
 		entity.hostsTrigger(card.hasTrigger() || card.hasAura() || card.hasCardCostModifier());
 		var heroClass = card.getHeroClass();
-
+		
 		// Put the condition met glow on the card
 		if (card.getZone() == Zones.HAND && entity.isPlayable()) {
-			List<Float> playableColor = Arrays.asList(0f, 1f, 0f);
-			List<Float> defaultGlowColor = Arrays.asList(1f, .92f, .016f);
-			List<Float> invokeGlowColor = Arrays.asList(1f, 0f, 1f);
-			List<Float> imbueGlowColor = Arrays.asList(1f, 0.7f, 0f);
-			if (workingContext.getLogic().conditionMet(localPlayerId, card)) {
-				if (card.hasAttribute(Attribute.INVOKE)) {
-					entity.glowColor(invokeGlowColor);
-				} else if (card.hasAttribute(Attribute.IMBUE)) {
-					entity.glowColor(imbueGlowColor);
-				} else {
-					entity.glowColor(defaultGlowColor);
-				}
-			} else entity.glowColor(playableColor);
-		} else {
-			entity.glowColor(null);
+			entity.conditionMet(workingContext.getLogic().conditionMet(localPlayerId, card));
 		}
 
 		// Handles tri-class cards correctly
@@ -779,13 +765,13 @@ public interface Games extends Verticle {
 			case CHOOSE_ONE:
 				// TODO: Handle choose one cards
 				break;
-			case CLASS:
-				entity.art(card.getDesc().getArt());
-				break;
 			case FORMAT:
 				entity.cardSets(Arrays.asList(card.getCardSets()));
 				break;
 		}
+
+		entity.art(card.getDesc().getArt());
+
 
 		return entity;
 	}

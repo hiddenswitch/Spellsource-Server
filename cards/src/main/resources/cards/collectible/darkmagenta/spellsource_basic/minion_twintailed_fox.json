@@ -38,5 +38,13 @@
   },
   "collectible": true,
   "set": "SPELLSOURCE_BASIC",
-  "fileFormatVersion": 1
+  "fileFormatVersion": 1,
+  "art": {
+    "glow": {
+      "r": 1.0,
+      "g": 0.0,
+      "b": 1.0,
+      "a": 1.0
+    }
+  }
 }

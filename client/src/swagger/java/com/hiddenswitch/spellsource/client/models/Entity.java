@@ -196,8 +196,8 @@ public class Entity implements Serializable {
   @JsonProperty("playable")
   private Boolean playable = false;
 
-  @JsonProperty("glowColor")
-  private List<Float> glowColor = null;
+  @JsonProperty("conditionMet")
+  private Boolean conditionMet = false;
 
   @JsonProperty("mana")
   private Integer mana = null;
@@ -1204,30 +1204,22 @@ public class Entity implements Serializable {
     this.playable = playable;
   }
 
-  public Entity glowColor(List<Float> glowColor) {
-    this.glowColor = glowColor;
-    return this;
-  }
-
-  public Entity addGlowColorItem(Float glowColorItem) {
-    if (this.glowColor == null) {
-      this.glowColor = new ArrayList<>();
-    }
-    this.glowColor.add(glowColorItem);
+  public Entity conditionMet(Boolean conditionMet) {
+    this.conditionMet = conditionMet;
     return this;
   }
 
    /**
-   * The current color that this card should be glowing (null if it should not be glowing) 
-   * @return glowColor
+   * When true, indicates that a condition written on the card is met and the player should be informed.
+   * @return conditionMet
   **/
-  @ApiModelProperty(value = "The current color that this card should be glowing (null if it should not be glowing) ")
-  public List<Float> getGlowColor() {
-    return glowColor;
+  @ApiModelProperty(value = "When true, indicates that a condition written on the card is met and the player should be informed.")
+  public Boolean isConditionMet() {
+    return conditionMet;
   }
 
-  public void setGlowColor(List<Float> glowColor) {
-    this.glowColor = glowColor;
+  public void setConditionMet(Boolean conditionMet) {
+    this.conditionMet = conditionMet;
   }
 
   public Entity mana(Integer mana) {
@@ -1615,7 +1607,7 @@ public class Entity implements Serializable {
         Objects.equals(this.customRenderer, entity.customRenderer) &&
         Objects.equals(this.customData, entity.customData) &&
         Objects.equals(this.playable, entity.playable) &&
-        Objects.equals(this.glowColor, entity.glowColor) &&
+        Objects.equals(this.conditionMet, entity.conditionMet) &&
         Objects.equals(this.mana, entity.mana) &&
         Objects.equals(this.maxMana, entity.maxMana) &&
         Objects.equals(this.lockedMana, entity.lockedMana) &&
@@ -1637,7 +1629,7 @@ public class Entity implements Serializable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, cardId, entityType, name, description, l, gold, boardPosition, owner, host, enchantmentType, heroClass, baseHp, hp, durability, maxHp, baseAttack, attack, baseManaCost, manaCost, armor, destroyed, summoningSickness, frozen, uncensored, deflect, silenced, windfury, permanent, collectible, taunt, discarded, roasted, spellDamage, charge, rush, lifesteal, poisonous, enraged, battlecry, deathrattles, immune, divineShield, stealth, combo, overload, chooseOne, untargetableBySpells, cannotAttack, underAura, customRenderer, customData, playable, glowColor, mana, maxMana, lockedMana, hostsTrigger, note, cardType, tribe, fires, countUntilCast, cardSet, rarity, gameStarted, cardSets, isStartingTurn, charges, art, tooltips);
+    return Objects.hash(id, cardId, entityType, name, description, l, gold, boardPosition, owner, host, enchantmentType, heroClass, baseHp, hp, durability, maxHp, baseAttack, attack, baseManaCost, manaCost, armor, destroyed, summoningSickness, frozen, uncensored, deflect, silenced, windfury, permanent, collectible, taunt, discarded, roasted, spellDamage, charge, rush, lifesteal, poisonous, enraged, battlecry, deathrattles, immune, divineShield, stealth, combo, overload, chooseOne, untargetableBySpells, cannotAttack, underAura, customRenderer, customData, playable, conditionMet, mana, maxMana, lockedMana, hostsTrigger, note, cardType, tribe, fires, countUntilCast, cardSet, rarity, gameStarted, cardSets, isStartingTurn, charges, art, tooltips);
   }
 
 
@@ -1699,7 +1691,7 @@ public class Entity implements Serializable {
     sb.append("    customRenderer: ").append(toIndentedString(customRenderer)).append("\n");
     sb.append("    customData: ").append(toIndentedString(customData)).append("\n");
     sb.append("    playable: ").append(toIndentedString(playable)).append("\n");
-    sb.append("    glowColor: ").append(toIndentedString(glowColor)).append("\n");
+    sb.append("    conditionMet: ").append(toIndentedString(conditionMet)).append("\n");
     sb.append("    mana: ").append(toIndentedString(mana)).append("\n");
     sb.append("    maxMana: ").append(toIndentedString(maxMana)).append("\n");
     sb.append("    lockedMana: ").append(toIndentedString(lockedMana)).append("\n");

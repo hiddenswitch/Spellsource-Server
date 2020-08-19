@@ -50,5 +50,13 @@
   },
   "collectible": true,
   "fileFormatVersion": 1,
-  "set": "CUSTOM"
+  "set": "CUSTOM",
+  "art": {
+    "glow": {
+      "r": 1.0,
+      "g": 0.7,
+      "b": 0.0,
+      "a": 1.0
+    }
+  }
 }

@@ -69,5 +69,13 @@
       }
     ]
   },
-  "targetSelectionOverride": "NONE"
+  "targetSelectionOverride": "NONE",
+  "art": {
+    "glow": {
+      "r": 1.0,
+      "g": 0.0,
+      "b": 1.0,
+      "a": 1.0
+    }
+  }
 }
