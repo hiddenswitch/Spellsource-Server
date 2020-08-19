@@ -67,9 +67,11 @@ To see more detail about a task, run gradle help --task <task>
 
 ### Cloning this repository
 
-This repository uses **Git Submodules**. This means, if you have the proper authorization, you'll be able to access all the source code using:
+This repository uses **Git Submodules** and **Git LFS**. This means, if you have the proper authorization, you'll be able to access all the source code using:
 
 ```shell script
+brew install git-lfs
+git lfs install
 git clone https://github.com/hiddenswitch/Spellsource.git
 cd Spellsource
 git submodule update --init --recursive
