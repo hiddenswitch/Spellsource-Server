@@ -1,5 +1,6 @@
 .code-editor {
-    height: 505px;
-    width: 900px;
+    display: block;
+    height: calc(100vh - 20pt);
+    width: 100%;
     color: black;
 }

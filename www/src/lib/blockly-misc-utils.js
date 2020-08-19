@@ -245,8 +245,7 @@ export default class BlocklyMiscUtils {
 
     BlocklyMiscUtils.initCardBlocks(data)
 
-
-    let defaultFunction = Blockly.Field.prototype.setValue;
+    let defaultFunction = Blockly.Field.prototype.setValue
     Blockly.Field.prototype.setValue = function (newValue) {
       defaultFunction.call(this, newValue)
       let source = this.sourceBlock_
@@ -263,7 +262,7 @@ export default class BlocklyMiscUtils {
     }
   }
 
-  static blocklyFunctionModification() {
+  static blocklyFunctionModification () {
     Blockly.HSV_SATURATION = .65
     Blockly.Blocks = {} //we don't use any of the default Blockly blocks
 
@@ -343,19 +342,19 @@ export default class BlocklyMiscUtils {
       }
     }
 
-    Blockly.BlockSvg.prototype.bumpNeighbours = function() {
+    Blockly.BlockSvg.prototype.bumpNeighbours = function () {
       if (!this.workspace) {
         return  // Deleted block.
       }
       if (this.workspace.isDragging()) {
         return  // Don't bump blocks during a drag.
       }
-      var rootBlock = this.getRootBlock();
+      var rootBlock = this.getRootBlock()
       if (rootBlock.isInFlyout) {
         return  // Don't move blocks around in a flyout.
       }
       // Loop through every connection on this block.
-      var myConnections = this.getConnections_(false);
+      var myConnections = this.getConnections_(false)
       for (var i = 0, connection; (connection = myConnections[i]); i++) {
         if (autoDecorate(this, connection)) {
           return
@@ -365,9 +364,7 @@ export default class BlocklyMiscUtils {
           connection.targetBlock().bumpNeighbours()
         }
 
-        var neighbours = connection.neighbours(Blockly.SNAP_RADIUS);
-
-
+        var neighbours = connection.neighbours(Blockly.SNAP_RADIUS)
 
         for (var j = 0, otherConnection; (otherConnection = neighbours[j]); j++) {
 
@@ -385,20 +382,20 @@ export default class BlocklyMiscUtils {
           }
         }
       }
-    };
+    }
 
     const autoDecorate = function (bumpee, connection) {
       if (connection.type === Blockly.NEXT_STATEMENT || bumpee.type.endsWith('SHADOW')) {
         return false
       }
       let workspace = bumpee.workspace
-      let nexts = workspace.connectionDBList[Blockly.NEXT_STATEMENT];
+      let nexts = workspace.connectionDBList[Blockly.NEXT_STATEMENT]
       let neighbours = nexts.getNeighbours(connection, Blockly.SNAP_RADIUS)
 
       for (var j = 0, otherConnection; (otherConnection = neighbours[j]); j++) {
         if ((!connection.isConnected() || connection.targetBlock().isShadow())
-        && (!otherConnection.isConnected() || otherConnection.targetBlock().isShadow())
-        && otherConnection.type === Blockly.NEXT_STATEMENT) {
+          && (!otherConnection.isConnected() || otherConnection.targetBlock().isShadow())
+          && otherConnection.type === Blockly.NEXT_STATEMENT) {
           let bumper = otherConnection.getSourceBlock()
           let addedBlock
           if (otherConnection.getCheck().includes('Properties')) {
@@ -565,9 +562,176 @@ export default class BlocklyMiscUtils {
    * @param type The block type to create
    * @returns The created block
    */
-  static newBlock(workspace, type) {
+  static newBlock (workspace, type) {
     let block = workspace.newBlock(type)
     this.manuallyAddShadowBlocks(block, Blockly.Blocks[type].json)
     return block
   }
+}
+
+export function createCard (card, workspace, cardsStillInUse, heroClassColors) {
+  if (!!card && !!card.name && !!card.type) {
+    let cardType = !!card.secret ? 'SECRET' : !!card.quest ? 'QUEST' : card.type
+    let cardId = cardType.toLowerCase()
+      + '_'
+      + card.name
+        .toLowerCase()
+        .replace(' ', '_')
+        .replace(',', '')
+        .replace('\'', '')
+    if (card.type === 'MINION' && card.collectible === false || card.collectible === 'FALSE') {
+      cardId.replace('minion_', 'token_')
+    }
+    if (card.type === 'CLASS') {
+      cardId = 'class_' + card.heroClass.toLowerCase()
+    }
+    let type = 'WorkspaceCard_' + cardId
+    let color = '#888888'
+    if (!!card.heroClass) {
+      color = heroClassColors[card.heroClass]
+    }
+    let block = {
+      init: function () {
+        this.jsonInit({
+          'type': type,
+          'message0': BlocklyMiscUtils.cardMessage(card),
+          'output': 'Card',
+          'colour': color
+        })
+        this.data = cardId
+      }
+    }
+    if (!Blockly.Blocks[type.replace('WorkspaceCard_', 'CatalogueCard_')]) {
+      cardsStillInUse.push(type)
+    }
+    if (Blockly.Blocks[type] !== block) {
+      Blockly.Blocks[type] = block
+      return true
+    }
+    return false
+  }
+
+}//Turns our own json formatting for shadow blocks into the formatting
+export function getToolboxCategories (onlyCategory = null, gatsbyShapedData = null, toolboxCategories = null, results = null) {
+  let index = -1
+  return gatsbyShapedData.toolbox.BlockCategoryList.map(({
+    BlockTypePrefix, CategoryName, ColorHex
+  }) => {
+    index++
+    if (!!onlyCategory && CategoryName !== onlyCategory) {
+      return toolboxCategories[index] //my attempt to reduce the runtime a bit
+    }
+    let blocks = []
+    if (!!BlockTypePrefix) {
+      for (let blocksKey in Blockly.Blocks) {
+        if ((!blocksKey.endsWith('SHADOW') && blocksKey.startsWith(BlockTypePrefix))
+          || (CategoryName === 'Cards' && blocksKey.startsWith('WorkspaceCard'))) {
+          blocks.push({
+            type: blocksKey,
+            values: shadowBlockJsonCreation(blocksKey),
+            next: blocksKey.startsWith('Starter') && !!Blockly.Blocks[blocksKey].json.nextStatement ?
+              { type: 'Property_SHADOW', shadow: true }
+              : undefined
+          })
+        }
+      }
+
+      if (!JsonConversionUtils.blockTypeColors[BlockTypePrefix]) {
+        JsonConversionUtils.blockTypeColors[BlockTypePrefix] = ColorHex
+      }
+    } else if (CategoryName === 'Search Results') {
+      results.forEach(value => {
+        blocks.push({
+          type: value.id,
+          values: shadowBlockJsonCreation(value.id),
+          next: value.id.startsWith('Starter') && !!Blockly.Blocks[value.id].json.nextStatement ?
+            { type: 'Property_SHADOW', shadow: true }
+            : undefined
+        })
+      })
+    }
+    let button = []
+    if (CategoryName === 'Cards') {
+      button[0] = {
+        text: 'Add External Card Code to Workspace',
+        callbackKey: 'importCard'
+      }
+    }
+
+    return {
+      name: CategoryName,
+      blocks: blocks,
+      colour: ColorHex,
+      button: button
+    }
+  })
+}
+
+//that's used for specifying toolbox categories (recursively)
+function shadowBlockJsonCreation (type) {
+  let block = Blockly.Blocks[type]
+  let values = {}
+  if (!!block && !!block.json) {
+    let json = block.json
+    for (let i = 0; i < 10; i++) {
+      if (!!json['args' + i.toString()]) {
+        for (let j = 0; j < 10; j++) {
+          const arg = json['args' + i.toString()][j]
+          if (!!arg && !!arg.shadow) {
+            let fields = {}
+            if (!!arg.shadow.fields) {
+              for (let field of arg.shadow.fields) {
+                fields[field.name] = field.valueI || field.valueS || field.valueB
+              }
+            }
+            values[arg.name] = {
+              type: arg.shadow.type,
+              shadow: !arg.shadow.notActuallyShadow,
+              fields: fields,
+              values: shadowBlockJsonCreation(arg.shadow.type)
+            }
+          }
+        }
+      }
+    }
+  }
+  return values
+}
+
+export function generateCard (data, mainWorkspace: Blockly.Workspace = Blockly.getMainWorkspace(), p: string = null) {
+  let cardId = null
+  let card = null
+
+  if (!p) {
+    return
+  }
+
+  if (p.includes('{')) {
+    card = JSON.parse(p)
+  } else if (p.includes('www')) {
+    cardId = p.split('cards/')[1]
+  } else if (p.includes('_')) {
+    cardId = p
+  } else {
+    for (let edge of data.allCard.edges) {
+      if (edge.node.name.toLowerCase() === p.toLowerCase()) {
+        cardId = edge.node.id
+        break
+      }
+    }
+  }
+  if (!!cardId) {
+    for (let edge of data.allFile.edges) {
+      let node = edge.node
+      if (node.name === cardId) {
+        card = JSON.parse(node.internal.content)
+      }
+    }
+  }
+
+  if (!card) {
+    return
+  }
+
+  JsonConversionUtils.generateCard(mainWorkspace, card)
 }

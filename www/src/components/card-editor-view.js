@@ -3,15 +3,10 @@ import WorkspaceUtils from '../lib/workspace-utils'
 import styles from './card-editor-view.module.css'
 import ReactBlocklyComponent from 'react-blockly'
 import Blockly from 'blockly'
-import { isArray } from 'lodash'
-import AceEditor from 'react-ace'
-import 'ace-builds/src-noconflict/mode-json'
-import 'ace-builds/src-noconflict/mode-xml'
-import 'ace-builds/src-noconflict/theme-github'
+import isArray from 'lodash/isArray'
 import { Form } from 'react-bootstrap'
 import { useIndex } from '../hooks/use-index'
-import JsonConversionUtils from '../lib/json-conversion-utils'
-import BlocklyMiscUtils from '../lib/blockly-misc-utils'
+import BlocklyMiscUtils, { createCard, generateCard, getToolboxCategories } from '../lib/blockly-misc-utils'
 import useComponentWillMount from '../hooks/use-component-will-mount'
 import useBlocklyData from '../hooks/use-blockly-data'
 
@@ -34,9 +29,9 @@ const CardEditorView = () => {
   useEffect(() => {
     const workspace = Blockly.getMainWorkspace()
     const importCardCallback = () => {
-      generateCard()
+      generateCard(data, Blockly.getMainWorkspace(), prompt('Input the name of the card (or the wiki page URL / Card ID for more precision)'))
       workspace.getToolbox().clearSelection()
-      setToolboxCategories(getToolboxCategories())
+      setToolboxCategories(getToolboxCategories(null, data, toolboxCategories, results))
     }
     workspace.registerButtonCallback('importCard', importCardCallback)
     const changeListenerCallback = (event) => {
@@ -53,94 +48,7 @@ const CardEditorView = () => {
     }
   }, [])
 
-  function getToolboxCategories (onlyCategory = null) {
-    let index = -1
-    return data.toolbox.BlockCategoryList.map(({
-      BlockTypePrefix, CategoryName, ColorHex
-    }) => {
-      index++
-      if (!!onlyCategory && CategoryName !== onlyCategory) {
-        return toolboxCategories[index] //my attempt to reduce the runtime a bit
-      }
-      let blocks = []
-      if (!!BlockTypePrefix) {
-        for (let blocksKey in Blockly.Blocks) {
-          if ((!blocksKey.endsWith('SHADOW') && blocksKey.startsWith(BlockTypePrefix))
-            || (CategoryName === 'Cards' && blocksKey.startsWith('WorkspaceCard'))) {
-            blocks.push({
-              type: blocksKey,
-              values: shadowBlockJsonCreation(blocksKey),
-              next: blocksKey.startsWith('Starter') && !!Blockly.Blocks[blocksKey].json.nextStatement ?
-                { type: 'Property_SHADOW', shadow: true }
-                : undefined
-            })
-          }
-        }
-
-        if (!JsonConversionUtils.blockTypeColors[BlockTypePrefix]) {
-          JsonConversionUtils.blockTypeColors[BlockTypePrefix] = ColorHex
-        }
-      } else if (CategoryName === 'Search Results') {
-        results.forEach(value => {
-          blocks.push({
-            type: value.id,
-            values: shadowBlockJsonCreation(value.id),
-            next: value.id.startsWith('Starter') && !!Blockly.Blocks[value.id].json.nextStatement ?
-              { type: 'Property_SHADOW', shadow: true }
-              : undefined
-          })
-        })
-      }
-      let button = []
-      if (CategoryName === 'Cards') {
-        button[0] = {
-          text: 'Add External Card Code to Workspace',
-          callbackKey: 'importCard'
-        }
-      }
-
-      return {
-        name: CategoryName,
-        blocks: blocks,
-        colour: ColorHex,
-        button: button
-      }
-    })
-  }
-
-  //Turns our own json formatting for shadow blocks into the formatting
-  //that's used for specifying toolbox categories (recursively)
-  function shadowBlockJsonCreation (type) {
-    let block = Blockly.Blocks[type]
-    let values = {}
-    if (!!block && !!block.json) {
-      let json = block.json
-      for (let i = 0; i < 10; i++) {
-        if (!!json['args' + i.toString()]) {
-          for (let j = 0; j < 10; j++) {
-            const arg = json['args' + i.toString()][j]
-            if (!!arg && !!arg.shadow) {
-              let fields = {}
-              if (!!arg.shadow.fields) {
-                for (let field of arg.shadow.fields) {
-                  fields[field.name] = field.valueI || field.valueS || field.valueB
-                }
-              }
-              values[arg.name] = {
-                type: arg.shadow.type,
-                shadow: !arg.shadow.notActuallyShadow,
-                fields: fields,
-                values: shadowBlockJsonCreation(arg.shadow.type)
-              }
-            }
-          }
-        }
-      }
-    }
-    return values
-  }
-
-  const [toolboxCategories, setToolboxCategories] = useState(getToolboxCategories())
+  const [toolboxCategories, setToolboxCategories] = useState(getToolboxCategories(null, data, toolboxCategories, results))
 
   function onWorkspaceChanged (workspace) {
     const cardScript = WorkspaceUtils.workspaceToCardScript(workspace)
@@ -149,11 +57,11 @@ const CardEditorView = () => {
     let update = false
     if (isArray(cardScript)) {
       cardScript.forEach(card => {
-        if (createCard(card, workspace, cardsStillInUse)) {
+        if (createCard(card, workspace, cardsStillInUse, heroClassColors)) {
           update = true
         }
       })
-    } else if (createCard(cardScript, workspace, cardsStillInUse)) {
+    } else if (createCard(cardScript, workspace, cardsStillInUse, heroClassColors)) {
       update = true
     }
     for (let blocksKey in Blockly.Blocks) {
@@ -164,91 +72,14 @@ const CardEditorView = () => {
     }
     setCode(JSON.stringify(cardScript, null, 2))
     if (update) {
-      setToolboxCategories(getToolboxCategories('Cards'))
+      setToolboxCategories(getToolboxCategories('Cards', data, toolboxCategories, results))
     }
-  }
-
-  function createCard (card, workspace, cardsStillInUse) {
-    if (!!card && !!card.name && !!card.type) {
-      let cardType = !!card.secret ? 'SECRET' : !!card.quest ? 'QUEST' : card.type
-      let cardId = cardType.toLowerCase()
-        + '_'
-        + card.name
-          .toLowerCase()
-          .replace(' ', '_')
-          .replace(',', '')
-          .replace("'", '')
-      if (card.type === 'MINION' && card.collectible === false || card.collectible === 'FALSE') {
-        cardId.replace('minion_', 'token_')
-      }
-      if (card.type === 'CLASS') {
-        cardId = 'class_' + card.heroClass.toLowerCase()
-      }
-      let type = 'WorkspaceCard_' + cardId
-      let color = '#888888'
-      if (!!card.heroClass) {
-        color = heroClassColors[card.heroClass]
-      }
-      let block = {
-        init: function () {
-          this.jsonInit({
-            'type': type,
-            'message0': BlocklyMiscUtils.cardMessage(card),
-            'output': 'Card',
-            'colour': color
-          })
-          this.data = cardId
-        }
-      }
-      if (!Blockly.Blocks[type.replace('WorkspaceCard_', 'CatalogueCard_')]) {
-        cardsStillInUse.push(type)
-      }
-      if (Blockly.Blocks[type] !== block) {
-        Blockly.Blocks[type] = block
-        return true
-      }
-      return false
-    }
-
-  }
-
-  function generateCard () {
-    let p = prompt('Input the name of the card (or the wiki page URL / Card ID for more precision)')
-    let cardId = null
-    let card = null
-
-    if (!p) {
-      return
-    }
-
-    if (p.includes('{')) {
-      card = JSON.parse(p)
-    } else if (p.includes('www')) {
-      cardId = p.split('cards/')[1]
-    } else if (p.includes('_')) {
-      cardId = p
+    
+    if (window.vuplex) {
+      window.vuplex.postMessage(cardScript)
     } else {
-      for (let edge of data.allCard.edges) {
-        if (edge.node.name.toLowerCase() === p.toLowerCase()) {
-          cardId = edge.node.id
-          break
-        }
-      }
+      window.addEventListener('vuplexready', () => window.vuplex.postMessage(cardScript))
     }
-    if (!!cardId) {
-      for (let edge of data.allFile.edges) {
-        let node = edge.node
-        if (node.name === cardId) {
-          card = JSON.parse(node.internal.content)
-        }
-      }
-    }
-
-    if (!card) {
-      return
-    }
-
-    JsonConversionUtils.generateCard(Blockly.getMainWorkspace(), card)
   }
 
   // update input value
@@ -260,7 +91,7 @@ const CardEditorView = () => {
     if (event.target.value.length === 0) {
       setResults([])
     }
-    setToolboxCategories(getToolboxCategories('Search Results'))
+    setToolboxCategories(getToolboxCategories('Search Results', data, toolboxCategories, results))
     const workspace = Blockly.getMainWorkspace()
     if (event.target.value.length > 0) {
       workspace.getToolbox().selectFirstCategory()
@@ -327,17 +158,6 @@ const CardEditorView = () => {
       workspaceDidChange={onWorkspaceChanged}
       wrapperDivClassName={styles.codeEditor}
       toolboxCategories={toolboxCategories}
-    />
-    <AceEditor
-      width={'100%'}
-      mode="json"
-      theme="github"
-      setOptions={{
-        'wrap': true
-      }}
-      readOnly={true}
-      value={code}
-      editorProps={{ $blockScrolling: true }}
     />
   </span>)
 }
