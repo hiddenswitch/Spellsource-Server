@@ -5008,15 +5008,13 @@ public class CustomCardsTests extends TestBase {
 	@Test
 	public void testColrum() {
 		runGym((context, player, opponent) -> {
-			var faes = CardCatalogue.query(context.getDeckFormat(), card -> card.getRace().equals(Race.FAE));
-			faes.shuffle(context.getLogic().getRandom());
 			for (int i = 0; i < 5; i++) {
-				shuffleToDeck(context, player, faes.removeFirst().getCardId());
-				shuffleToDeck(context, opponent, faes.removeFirst().getCardId());
-				receiveCard(context, player, faes.removeFirst().getCardId());
-				receiveCard(context, opponent, faes.removeFirst().getCardId());
-				playMinionCard(context, player, faes.removeFirst().getCardId());
-				playMinionCard(context, opponent, faes.removeFirst().getCardId());
+				shuffleToDeck(context, player, "minion_test_3_2_fae");
+				shuffleToDeck(context, opponent, "minion_test_3_2_fae");
+				receiveCard(context, player, "minion_test_3_2_fae");
+				receiveCard(context, opponent, "minion_test_3_2_fae");
+				playMinionCard(context, player, "minion_test_3_2_fae");
+				playMinionCard(context, opponent, "minion_test_3_2_fae");
 			}
 			playCard(context, player, "minion_colrum");
 			Stream.of(player.getDeck(), opponent.getDeck(), player.getHand(), opponent.getHand(),

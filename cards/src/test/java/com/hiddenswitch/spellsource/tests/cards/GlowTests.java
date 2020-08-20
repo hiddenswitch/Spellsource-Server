@@ -16,14 +16,14 @@ public class GlowTests extends TestBase {
 	public void testOpenerCondition() {
 		runGym((context, player, opponent) -> {
 			var doesNotMeetCondition = receiveCard(context, player, "minion_test_opener_condition");
-			assertFalse(doesNotMeetCondition.getDesc().getGlowConditions().anyMatch(c -> c.isFulfilled(context, player, doesNotMeetCondition, null)));
+			assertFalse(context.getLogic().conditionMet(player.getId(), doesNotMeetCondition));
 		});
 
 		runGym((context, player, opponent) -> {
 			var doesMeetCondition = receiveCard(context, player, "minion_test_opener_condition");
 			var onBattlefield = playMinionCard(context, player, 1, 1);
 			assertEquals(1L, doesMeetCondition.getDesc().getGlowConditions().count(), "should match at least one");
-			assertTrue(doesMeetCondition.getDesc().getGlowConditions().anyMatch(c -> c.isFulfilled(context, player, doesMeetCondition, null)));
+			assertTrue(context.getLogic().conditionMet(player.getId(), doesMeetCondition));
 		});
 	}
 
@@ -31,13 +31,13 @@ public class GlowTests extends TestBase {
 	public void testConditionalSpell() {
 		runGym((context, player, opponent) -> {
 			var doesNotMeetCondition = receiveCard(context, player, "spell_bloodmoon_ritual");
-			assertFalse(doesNotMeetCondition.getDesc().getGlowConditions().anyMatch(c -> c.isFulfilled(context, player, doesNotMeetCondition, null)));
+			assertFalse(context.getLogic().conditionMet(player.getId(), doesNotMeetCondition));
 
 			for (int i = 0; i < 3; i++) {
 				playCard(context, player, CardCatalogue.getOneOneNeutralMinionCardId());
 			}
 
-			assertFalse(doesNotMeetCondition.getDesc().getGlowConditions().anyMatch(c -> c.isFulfilled(context, player, doesNotMeetCondition, null)));
+			assertFalse(context.getLogic().conditionMet(player.getId(), doesNotMeetCondition));
 
 		});
 	}
@@ -48,15 +48,14 @@ public class GlowTests extends TestBase {
 			player.setAttribute(Attribute.IMBUE, 3);
 			var doesMeetCondition = receiveCard(context, player, "minion_wise_sage");
 
-			assertTrue(doesMeetCondition.getDesc().getGlowConditions().anyMatch(c -> c.isFulfilled(context, player, doesMeetCondition, null)));
+			assertTrue(context.getLogic().conditionMet(player.getId(), doesMeetCondition));
 		});
 
 		runGym((context, player, opponent) -> {
 			player.setAttribute(Attribute.IMBUE, 3);
 			var doesMeetCondition = receiveCard(context, player, "spell_celestial_guidance");
 
-			assertTrue(doesMeetCondition.getDesc().getGlowConditions().anyMatch(c -> c.isFulfilled(context, player, doesMeetCondition, null)));
-
+			assertTrue(context.getLogic().conditionMet(player.getId(), doesMeetCondition));
 		});
 	}
 
@@ -64,9 +63,9 @@ public class GlowTests extends TestBase {
 	public void testNoTargetSelectionOverrides() {
 		runGym((context, player, opponent) -> {
 			player.setMana(4);
-			var no = receiveCard(context, player, "spell_rune_of_banishing");
+			var doesNotMeetCondition = receiveCard(context, player, "spell_rune_of_banishing");
 
-			assertFalse(no.getDesc().getGlowConditions().anyMatch(c -> c.isFulfilled(context, player, no, null)));
+			assertFalse(context.getLogic().conditionMet(player.getId(), doesNotMeetCondition));
 
 		});
 	}

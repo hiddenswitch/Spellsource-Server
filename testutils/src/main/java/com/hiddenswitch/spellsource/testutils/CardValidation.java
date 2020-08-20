@@ -80,7 +80,7 @@ public class CardValidation {
 			testContext.init();
 			var card = record.getDesc().create();
 			testContext.getLogic().receiveCard(0, card);
-			record.getDesc().getGlowConditions().forEach(c -> c.isFulfilled(testContext, testContext.getPlayer1(), card, null));
+			testContext.getLogic().conditionMet(0, card);
 			var description = record.getDesc().getDescription();
 			if (description != null) {
 				var attributes = record.getDesc().getAttributes();

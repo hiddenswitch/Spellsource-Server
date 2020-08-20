@@ -1057,7 +1057,7 @@ public final class CardDesc /*extends AbstractMap<CardDescArg, Object>*/ impleme
 	@JsonIgnore
 	public Stream<Condition> getGlowConditions() {
 		if (glowConditions == null) {
-			if (attributes.containsKey(Attribute.INVOKE)) {
+			if (attributes != null && attributes.containsKey(Attribute.INVOKE)) {
 				glowConditions = new ArrayList<>();
 				glowConditions.add(new ConditionDesc(InvokeCondition.class).create());
 			} else {
@@ -1085,7 +1085,8 @@ public final class CardDesc /*extends AbstractMap<CardDescArg, Object>*/ impleme
 								return (Condition) conditionObj;
 							}
 							return null;
-						}).filter(Objects::nonNull)
+						})
+						.filter(Objects::nonNull)
 						.collect(toList());
 			}
 		}
