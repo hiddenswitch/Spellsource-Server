@@ -84,7 +84,7 @@ public interface Matchmaking {
 
 			LOGGER.trace("enqueue {}: Successfully enqueued", request.getUserId());
 
-			Presence.notifyFriendsOfPresence(new UserId(request.getUserId()), PresenceEnum.IN_GAME);
+			Presence.notifyFriendsOfPresence(new UserId(request.getUserId()));
 			enqueued = true;
 		} catch (Throwable t) {
 			Tracing.error(t, span, false);
@@ -130,7 +130,6 @@ public interface Matchmaking {
 				eventBus.send(getQueueAddress(queueId), new MatchmakingQueueEntry()
 						.setCommand(MatchmakingQueueEntry.Command.CANCEL)
 						.setUserId(userId.toString()));
-				Presence.updatePresence(userId.toString());
 				dequeued = true;
 			}
 		} finally {
@@ -504,7 +503,7 @@ public interface Matchmaking {
 	 * connected players of changes in queue status.
 	 */
 	static void handleConnections() {
-		Connection.connected((connection, fut) -> {
+		Connection.connected("Matchmaking/handleConnections", (connection, fut) -> {
 			LOGGER.trace("handleConnections {}: Matchmaking ready", connection.userId());
 			// If the user disconnects, dequeue them immediately.
 			connection.addCloseHandler(fiber(v -> {

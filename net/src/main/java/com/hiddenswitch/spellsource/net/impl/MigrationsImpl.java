@@ -2,16 +2,13 @@ package com.hiddenswitch.spellsource.net.impl;
 
 import co.paralleluniverse.fibers.SuspendExecution;
 import co.paralleluniverse.fibers.Suspendable;
-import com.amazonaws.util.Throwables;
+import com.google.common.base.Throwables;
 import com.hiddenswitch.spellsource.net.Migrations;
 import com.hiddenswitch.spellsource.net.models.MigrateToRequest;
 import com.hiddenswitch.spellsource.net.models.MigrationRequest;
 import com.hiddenswitch.spellsource.net.models.MigrationResponse;
 import com.hiddenswitch.spellsource.net.models.MigrationToResponse;
-import com.mongodb.DuplicateKeyException;
-import com.mongodb.MongoException;
 import com.mongodb.MongoWriteException;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.MongoClientUpdateResult;
 import io.vertx.ext.mongo.UpdateOptions;
 import io.vertx.ext.mongo.WriteOption;
@@ -23,6 +20,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -72,7 +70,7 @@ public class MigrationsImpl extends SyncVerticle implements Migrations {
 	@Override
 	public MigrationResponse add(MigrationRequest request) {
 		migrations.add(request);
-		Collections.sort(migrations, (m1, m2) -> m1.getVersion() - m2.getVersion());
+		Collections.sort(migrations, Comparator.comparingInt(MigrationRequest::getVersion));
 		return new MigrationResponse();
 	}
 
@@ -137,7 +135,6 @@ public class MigrationsImpl extends SyncVerticle implements Migrations {
 			}
 		}
 
-		// currentVersion was updated
 		unlock(currentVersion);
 		return MigrationToResponse.succeededMigration();
 	}
@@ -190,9 +187,9 @@ public class MigrationsImpl extends SyncVerticle implements Migrations {
 	}
 
 
-	private void unlock(int version) throws SuspendExecution, InterruptedException {
-		mongo().updateCollectionWithOptions(MIGRATIONS, json("_id", "control", "locked", true, "version", version),
-				json("$set", json("locked", false)),
+	private void unlock(int newVersion) throws SuspendExecution, InterruptedException {
+		mongo().updateCollectionWithOptions(MIGRATIONS, json("_id", "control", "locked", true),
+				json("$set", json("locked", false, "version", newVersion)),
 				new UpdateOptions()
 						.setWriteOption(WriteOption.FSYNCED));
 	}

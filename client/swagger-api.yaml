@@ -1019,6 +1019,12 @@ definitions:
         $ref: '#/definitions/Entity'
       target:
         $ref: '#/definitions/Entity'
+      targets:
+        description: |
+          An array of targets
+        type: 'array'
+        items:
+          $ref: '#/definitions/Entity'
       value:
         type: 'integer'
         format: 'int32'
@@ -1074,6 +1080,7 @@ definitions:
           - 'MAX_HP_INCREASED'
           - 'MAX_MANA'
           - 'MANA_MODIFIED'
+          - 'MISSILE_FIRED'
           - 'OVERLOAD'
           - 'PERFORMED_GAME_ACTION'
           - 'PHYSICAL_ATTACK'
@@ -1097,6 +1104,7 @@ definitions:
           - 'WEAPON_DESTROYED'
           - 'WEAPON_EQUIPPED'
           - 'WILL_END_SEQUENCE'
+          - 'DESTROY_WILL_QUEUE'
       cardEvent:
         $ref: '#/definitions/CardEvent'
       performedGameAction:
@@ -1118,6 +1126,13 @@ definitions:
         properties:
           damageType:
             $ref: '#/definitions/DamageTypeEnum'
+      destroy:
+        type: 'object'
+        properties:
+          objects:
+            type: 'array'
+            items:
+              $ref: '#/definitions/Destroy'
       triggerFired:
         type: 'object'
         properties:
@@ -1133,6 +1148,21 @@ definitions:
             items:
               type: 'integer'
               x-nullable: false
+  Destroy:
+    type: 'object'
+    description: |
+      Contains information about an actor being destroyed.
+    properties:
+      target:
+        $ref: '#/definitions/Entity'
+      source:
+        $ref: '#/definitions/Entity'
+      aftermaths:
+        description: |
+          Aftermaths that will fire due to this actor being destroyed.
+        type: 'array'
+        items:
+          $ref: '#/definitions/Entity'
   MatchmakingQueuePutRequest:
     type: 'object'
     properties:
@@ -1809,6 +1839,16 @@ definitions:
         $ref: '#/definitions/Sprite'
       spriteShadow:
         $ref: '#/definitions/Sprite'
+      missile:
+        $ref: '#/definitions/Prefab'
+      onHit:
+        $ref: '#/definitions/Prefab'
+      onCast:
+        $ref: '#/definitions/Prefab'
+      loop:
+        $ref: '#/definitions/Prefab'
+      spell:
+        $ref: '#/definitions/Prefab'
       primary:
         $ref: '#/definitions/Color'
       secondary:
@@ -1840,6 +1880,15 @@ definitions:
         type: 'string'
         description: |
           The text that should appear on the tooltip.
+  Prefab:
+    type: 'object'
+    description: |
+      Specifies a prefab (game object)
+    properties:
+      named:
+        type: 'string'
+        description: |
+          The name of the prefab.
   Sprite:
     type: 'object'
     description: |

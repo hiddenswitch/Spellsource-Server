@@ -26,6 +26,7 @@ exports.createSchemaCustomization = ({ actions }) => {
     BlockTypePrefix: String
     CategoryName: String
     ColorHex: String
+    Subcategories: [String]
   }
   type Block implements Node {
     type: String
@@ -39,6 +40,9 @@ exports.createSchemaCustomization = ({ actions }) => {
     inputsInline: Boolean
     hat: String
     searchMessage: String
+    comment: String
+    subcategory: String
+    plural: Boolean
   }
   type Args1 {
     i: Int!
@@ -57,6 +61,10 @@ exports.createSchemaCustomization = ({ actions }) => {
     text: String
     options: [[String]]
     shadow: Shadow
+    width: Int
+    height: Int
+    alt: String
+    src: String
   }
   type Shadow {
     type: String
@@ -170,6 +178,9 @@ exports.createResolvers = ({ createResolvers }) => {
                 text += option[0] + ' '
               }
               return text
+            }
+            if (arg.type === 'field_label_plural') {
+              return arg.value
             }
             return ''
           }

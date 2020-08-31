@@ -8,6 +8,7 @@ export default function useBlocklyData () {
         BlockTypePrefix
         CategoryName
         ColorHex
+        Subcategories
       }
     }
     allBlock {
@@ -28,6 +29,10 @@ export default function useBlocklyData () {
               int
               text
               options
+              width
+              height
+              src
+              alt
               shadow {
                 type
                 fields {
@@ -48,6 +53,9 @@ export default function useBlocklyData () {
           type
           data
           hat
+          comment
+          subcategory
+          plural
         }
       }
     }
@@ -63,6 +71,7 @@ export default function useBlocklyData () {
           type
           collectible
           description
+          race
           art {
             primary {
               r

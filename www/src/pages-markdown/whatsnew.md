@@ -5,17 +5,93 @@ path: "/whats-new"
 header: true
 ---
 
-### Upcoming Changes
+## What's New
+
+Thanks for playing this beta of Spellsource! Read more at [our website](https://www.playspellsource.com) and join our 
+[Discord](https://discord.gg/HmbESh2)!
+
+### Current Version 0.8.89-3.3.6 (August 27, 2020)
+
+Improvements to presence.
+
+### 0.8.88-3.3.6 (August 26, 2020)
+
+<details>
+<summary>Improvements to visualization of spells and hand tray on mobile.</summary>
+
+The card tray on mobile now behaves this way:
+
+ - Tap or drag to open tray
+ - Tap a card to see toggle its description text.
+ - Press and hold a card to inspect the card and see its tooltips.
+ - When the tray is open, drag to activate a card.
+ - When the tray is open, you can start dragging a unit to attack. The tray will close automatically.
+ - When a card is activated (i.e. it's in your finger, being played) the tray closes.
+ - Drag the card back to the lower part of the screen to deactivate (cancel) playing the card.
+ - Most cards issue (are played) when you are directly over the target or, when summoning, when the aura is visible.
+
+This resolves the following bugs before 3.3.4:
+
+ - When the tray is closed, dragging on a card in the closed tray would do nothing instead of opening the tray
+ - It appears you tapped on the floor, but if you tapped on an invisible placeholder where the summoning auras are stored, the tray would not close
+</details>
+
+### 0.8.88-3.3.5
+
+Visualization of spells in hand and improvements to hand tray behaviour on mobile.
+
+### 0.8.88-3.3.4
+
+Improvements to hand tray behaviour on mobile.
+
+### 0.8.88-3.3.3 (August 22, 2020)
+
+<details>
+<summary>Visualization of deaths, background update.</summary>
+
+ - The background has been updated and is almost complete. Additional stages are on their way!
+ - Whenever units die, their death status is now visualized throughout the sequence before they are removed from the board.
+ - New icons have been drawn for the power history and various status effects.
+ - Update the power history icons.
+ - Spellpower and Exhausted are now visualized on the battlefield.
+ - Improved legibility in places where numbers are in front of icons. However, we are still exploring a change for the confusing Trenco 1 versus 7 numerals.
+
+</details>
+
+### 0.8.87-3.3.2 (August 20, 2020)
+
+<details>
+
+<summary>Bug fixes.</summary>
+
+ - Missiles now appear for damaging effects, communicating their source.
+ - The battlefield has been updated.
+ - Hitboxes on the card tray have been improved.
+
+</details>
+
+### 0.8.86-3.3.1 (August 19, 2020)
+
+<details>
+<summary>Bug fixes.</summary>
+Known issue: The hitbox on the card tray on portrait for mobile devices does not register a tray close when pressing around the center of the screen.
+
+ - User presence and friend counts are now fixed.
+
+</details>
+
+### 0.8.85-3.3.0 (August 18, 2020)
+
+<details>
+<summary>Bug fixes.</summary>
+
  - The Witch card Managrounder now functions properly. ([1817](https://github.com/hiddenswitch/Spellsource/issues/1817))
  - Parallel Protector now has a happy little dynamic description. ([1795](https://github.com/hiddenswitch/Spellsource/issues/1795))
  - The Ringmaster class has become the Festivalist! The new core set is made up of some previous cards, some reflavorings of previous cards, and some entirely new cards. The rest of the old Ringmaster cards have been uncollectiblified. ([1826](https://github.com/hiddenswitch/Spellsource/issues/1826))
  - Recurring Torrent is changed from:
    5 Cost 4/5 RARE ANY (Neutral) MINION "Opener: Receive a copy of the last spell you cast this turn."
    to 3 Cost 3/3 RARE ANY (Neutral) MINION "Opener: Receive a copy of a spell cast this game." ([1791](https://github.com/hiddenswitch/Spellsource/issues/1791))
- - Undead Trickster is changed from:
-   3 Cost 3/1 RARE ANY (Neutral) MINION "Opener: Shuffle 3 Tricks and 3 Treats into your deck."
-   to
-   3 Cost 3/3 RARE ANY (Neutral) MINION "Opener: Shuffle a Trick and a Treat into your deck." (Trick and Treats do 3 instead of 4 damage/healing now too). ([1791](https://github.com/hiddenswitch/Spellsource/issues/1791))
+ - Undead Trickster is changed from: 3 Cost 3/1 RARE ANY (Neutral) MINION "Opener: Shuffle 3 Tricks and 3 Treats into your deck." to 3 Cost 3/3 RARE ANY (Neutral) MINION "Opener: Shuffle a Trick and a Treat into your deck." (Trick and Treats do 3 instead of 4 damage/healing now too). ([1791](https://github.com/hiddenswitch/Spellsource/issues/1791))
  - Son of the Emperor's opener now actually works. ([1789](https://github.com/hiddenswitch/Spellsource/issues/1789))
  - Firegate Inquisitor no longer wastes damage overkilling ([1788](https://github.com/hiddenswitch/Spellsource/issues/1788))
  - Stalagmite Stomper no longer activates itself (nor does Exploblaze). ([1804](https://github.com/hiddenswitch/Spellsource/issues/1804))
@@ -26,13 +102,10 @@ header: true
  - A work in progress battlefield background is now visible in the client.
  - The small card's appearance has been improved for better usability.
  - The champion sprites are now correctly shown on the battlefield.
+ 
+</details>
 
-## What's New
-
-Thanks for playing this beta of Spellsource! Read more at [our website](http://www.playspellsource.com) and join our 
-[Discord](https://discord.gg/HmbESh2)! See older updates [here](history).
-
-### Current Build 0.8.84-3.2.8 (August 15, 2020)
+### 0.8.84-3.2.8 (August 15, 2020)
 
 <details>
 <summary>Champion art assignments and bug fixes.</summary>

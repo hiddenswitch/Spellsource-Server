@@ -20,11 +20,14 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.hiddenswitch.spellsource.client.models.CardEvent;
 import com.hiddenswitch.spellsource.client.models.Entity;
 import com.hiddenswitch.spellsource.client.models.GameEventDamage;
+import com.hiddenswitch.spellsource.client.models.GameEventDestroy;
 import com.hiddenswitch.spellsource.client.models.GameEventJoust;
 import com.hiddenswitch.spellsource.client.models.GameEventPerformedGameAction;
 import com.hiddenswitch.spellsource.client.models.GameEventTriggerFired;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.ArrayList;
+import java.util.List;
 import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -55,6 +58,9 @@ public class GameEvent implements Serializable {
 
   @JsonProperty("target")
   private Entity target = null;
+
+  @JsonProperty("targets")
+  private List<Entity> targets = null;
 
   @JsonProperty("value")
   private Integer value = null;
@@ -141,6 +147,8 @@ public class GameEvent implements Serializable {
     
     MANA_MODIFIED("MANA_MODIFIED"),
     
+    MISSILE_FIRED("MISSILE_FIRED"),
+    
     OVERLOAD("OVERLOAD"),
     
     PERFORMED_GAME_ACTION("PERFORMED_GAME_ACTION"),
@@ -185,7 +193,9 @@ public class GameEvent implements Serializable {
     
     WEAPON_EQUIPPED("WEAPON_EQUIPPED"),
     
-    WILL_END_SEQUENCE("WILL_END_SEQUENCE");
+    WILL_END_SEQUENCE("WILL_END_SEQUENCE"),
+    
+    DESTROY_WILL_QUEUE("DESTROY_WILL_QUEUE");
 
     private String value;
 
@@ -228,6 +238,9 @@ public class GameEvent implements Serializable {
 
   @JsonProperty("damage")
   private GameEventDamage damage = null;
+
+  @JsonProperty("destroy")
+  private GameEventDestroy destroy = null;
 
   @JsonProperty("triggerFired")
   private GameEventTriggerFired triggerFired = null;
@@ -356,6 +369,32 @@ public class GameEvent implements Serializable {
 
   public void setTarget(Entity target) {
     this.target = target;
+  }
+
+  public GameEvent targets(List<Entity> targets) {
+    this.targets = targets;
+    return this;
+  }
+
+  public GameEvent addTargetsItem(Entity targetsItem) {
+    if (this.targets == null) {
+      this.targets = new ArrayList<>();
+    }
+    this.targets.add(targetsItem);
+    return this;
+  }
+
+   /**
+   * An array of targets 
+   * @return targets
+  **/
+  @ApiModelProperty(value = "An array of targets ")
+  public List<Entity> getTargets() {
+    return targets;
+  }
+
+  public void setTargets(List<Entity> targets) {
+    this.targets = targets;
   }
 
   public GameEvent value(Integer value) {
@@ -502,6 +541,24 @@ public class GameEvent implements Serializable {
     this.damage = damage;
   }
 
+  public GameEvent destroy(GameEventDestroy destroy) {
+    this.destroy = destroy;
+    return this;
+  }
+
+   /**
+   * Get destroy
+   * @return destroy
+  **/
+  @ApiModelProperty(value = "")
+  public GameEventDestroy getDestroy() {
+    return destroy;
+  }
+
+  public void setDestroy(GameEventDestroy destroy) {
+    this.destroy = destroy;
+  }
+
   public GameEvent triggerFired(GameEventTriggerFired triggerFired) {
     this.triggerFired = triggerFired;
     return this;
@@ -537,6 +594,7 @@ public class GameEvent implements Serializable {
         Objects.equals(this.entityUntouched, gameEvent.entityUntouched) &&
         Objects.equals(this.source, gameEvent.source) &&
         Objects.equals(this.target, gameEvent.target) &&
+        Objects.equals(this.targets, gameEvent.targets) &&
         Objects.equals(this.value, gameEvent.value) &&
         Objects.equals(this.description, gameEvent.description) &&
         Objects.equals(this.isPowerHistory, gameEvent.isPowerHistory) &&
@@ -545,12 +603,13 @@ public class GameEvent implements Serializable {
         Objects.equals(this.performedGameAction, gameEvent.performedGameAction) &&
         Objects.equals(this.joust, gameEvent.joust) &&
         Objects.equals(this.damage, gameEvent.damage) &&
+        Objects.equals(this.destroy, gameEvent.destroy) &&
         Objects.equals(this.triggerFired, gameEvent.triggerFired);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, isSourcePlayerLocal, isTargetPlayerLocal, entityTouched, entityUntouched, source, target, value, description, isPowerHistory, eventType, cardEvent, performedGameAction, joust, damage, triggerFired);
+    return Objects.hash(id, isSourcePlayerLocal, isTargetPlayerLocal, entityTouched, entityUntouched, source, target, targets, value, description, isPowerHistory, eventType, cardEvent, performedGameAction, joust, damage, destroy, triggerFired);
   }
 
 
@@ -566,6 +625,7 @@ public class GameEvent implements Serializable {
     sb.append("    entityUntouched: ").append(toIndentedString(entityUntouched)).append("\n");
     sb.append("    source: ").append(toIndentedString(source)).append("\n");
     sb.append("    target: ").append(toIndentedString(target)).append("\n");
+    sb.append("    targets: ").append(toIndentedString(targets)).append("\n");
     sb.append("    value: ").append(toIndentedString(value)).append("\n");
     sb.append("    description: ").append(toIndentedString(description)).append("\n");
     sb.append("    isPowerHistory: ").append(toIndentedString(isPowerHistory)).append("\n");
@@ -574,6 +634,7 @@ public class GameEvent implements Serializable {
     sb.append("    performedGameAction: ").append(toIndentedString(performedGameAction)).append("\n");
     sb.append("    joust: ").append(toIndentedString(joust)).append("\n");
     sb.append("    damage: ").append(toIndentedString(damage)).append("\n");
+    sb.append("    destroy: ").append(toIndentedString(destroy)).append("\n");
     sb.append("    triggerFired: ").append(toIndentedString(triggerFired)).append("\n");
     sb.append("}");
     return sb.toString();

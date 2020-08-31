@@ -218,6 +218,7 @@ public interface Games extends Verticle {
 		var workingContext = event.getGameContext().clone();
 		var source = event.getSource(workingContext);
 		var target = event.getTarget();
+		var targets = event.getTargets(workingContext, playerId);
 		var value = event instanceof HasValue ? ((HasValue) event).getValue() : null;
 		var card = event instanceof HasCard ? ((HasCard) event).getSourceCard() : null;
 		var description = event.isPowerHistory() ? event.getDescription(workingContext, playerId) : null;
@@ -255,9 +256,26 @@ public interface Games extends Verticle {
 			clientEvent.target(getEntity(workingContext, target, playerId));
 		}
 
+		// Support plural targets
+		if (targets != null) {
+			if (targets.size()==1) {
+				clientEvent.target(getEntity(workingContext, targets.get(0), playerId));
+			} else {
+				clientEvent.targets(targets.stream().map(e -> getEntity(workingContext, e, playerId)).collect(toList()));
+			}
+		}
+
+		var isSourcePlayerLocal = event.getSourcePlayerId() == playerId;
+		var isTargetPlayerLocal = event.getTargetPlayerId() == playerId;
+
+		// Gracefully handle events that do not specify a source player ID
+		if (event.getSourcePlayerId() == -1) {
+			isSourcePlayerLocal = workingContext.getActivePlayerId() == playerId;
+		}
+
 		clientEvent
-				.isTargetPlayerLocal(event.getTargetPlayerId() == playerId)
-				.isSourcePlayerLocal(event.getSourcePlayerId() == playerId);
+				.isTargetPlayerLocal(isTargetPlayerLocal)
+				.isSourcePlayerLocal(isSourcePlayerLocal);
 
 		// Only a handful of special cases need to be dealt with
 		if (event instanceof DamageEvent) {
@@ -540,6 +558,7 @@ public interface Games extends Verticle {
 				.entityType(actor.getEntityType())
 				.cardId(card.getCardId());
 
+		// TODO: Why are we computing extra attack?
 		var extraAttack = 0;
 		if (actor instanceof Minion) {
 			entity.boardPosition(actor.getEntityLocation().getIndex());
@@ -587,7 +606,7 @@ public interface Games extends Verticle {
 		entity.divineShield(actor.hasAttribute(Attribute.DIVINE_SHIELD));
 		entity.deflect(actor.hasAttribute(Attribute.DEFLECT));
 		entity.enraged(actor.hasAttribute(Attribute.ENRAGED));
-		entity.destroyed(actor.hasAttribute(Attribute.DESTROYED));
+		entity.destroyed(actor.isDestroyed());
 		entity.cannotAttack(actor.hasAttribute(Attribute.CANNOT_ATTACK) || actor.hasAttribute(Attribute.AURA_CANNOT_ATTACK));
 		entity.spellDamage(actor.getAttributeValue(Attribute.SPELL_DAMAGE) + actor.getAttributeValue(Attribute.AURA_SPELL_DAMAGE));
 		entity.windfury(actor.hasAttribute(Attribute.WINDFURY) || actor.hasAttribute(Attribute.AURA_WINDFURY));

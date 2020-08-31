@@ -41,7 +41,7 @@ import net.demilich.metastone.game.decks.DeckFormat;
 import net.demilich.metastone.game.decks.GameDeck;
 import net.demilich.metastone.game.entities.Entity;
 import net.demilich.metastone.game.environment.Environment;
-import net.demilich.metastone.game.events.GameEvent;
+import net.demilich.metastone.game.events.Notification;
 import net.demilich.metastone.game.events.TouchingNotification;
 import net.demilich.metastone.game.events.TriggerFired;
 import net.demilich.metastone.game.logic.GameLogic;
@@ -98,7 +98,7 @@ public class ServerGameContext extends GameContext implements Server {
 	private final Deque<Trigger> gameTriggers = new ConcurrentLinkedDeque<>();
 	private final Scheduler scheduler;
 	private boolean isRunning = false;
-	private final AtomicInteger eventCounter = new AtomicInteger(0);
+	private final AtomicInteger notificationCounter = new AtomicInteger(0);
 	private Long timerStartTimeMillis;
 	private Long timerLengthMillis;
 
@@ -254,11 +254,15 @@ public class ServerGameContext extends GameContext implements Server {
 	 * @return A way to disconnect the machinery that makes the messaging happen for this particular server instance.
 	 */
 	public static Closeable handleConnections() {
-		Set<MessageConsumer<ServerToClientMessage>> consumers = new ConcurrentHashSet<>();
-
 		// Set up the connectivity for the user.
 		Connection.SetupHandler handler = (connection, fut) -> {
-			Vertx vertx = Vertx.currentContext().owner();
+			var context = Vertx.currentContext();
+			Set<MessageConsumer<ServerToClientMessage>> consumers = context.get("ServerGameContextConsumers");
+			if (consumers == null) {
+				consumers = new ConcurrentHashSet<>();
+				context.put("ServerGameContextConsumers", consumers);
+			}
+			Vertx vertx = context.owner();
 			EventBus bus = vertx.eventBus();
 			String userId = connection.userId();
 
@@ -290,26 +294,32 @@ public class ServerGameContext extends GameContext implements Server {
 			});
 
 			// When the connection is closed for any reason (client disconnect or server shutdown), make sure to remove these event bus registrations
+			Set<MessageConsumer<ServerToClientMessage>> finalConsumers = consumers;
 			connection.addCloseHandler(v1 -> {
-				consumers.remove(consumer);
+				finalConsumers.remove(consumer);
 				consumer.unregister(v1);
+			});
+
+			// Also shutdown the consumers that remain here
+			context.addCloseHook(v -> {
+				var copy = new ArrayList<>(finalConsumers);
+				finalConsumers.clear();
+				CompositeFuture.join(copy.stream().map(mc -> {
+					Promise<Void> promise = Promise.promise();
+					mc.unregister(promise);
+					return promise.future();
+				}).collect(toList())).onComplete(v1 -> v.handle(v1.mapEmpty()));
 			});
 
 			consumer.completionHandler(fut);
 		};
 
 		// Handle the connections here.
-		Connection.connected(handler);
+		Connection.connected("ServerGameContext/handleConnections", handler);
 
-		// Remove all remaining handlers
+		// Do nothing
 		return completionHandler -> {
-			Connection.getHandlers().remove(handler);
-
-			CompositeFuture.join(consumers.stream().map(mc -> {
-				Promise<Void> promise = Promise.promise();
-				mc.unregister(promise);
-				return promise.future();
-			}).collect(toList())).onComplete(v1 -> completionHandler.handle(v1.mapEmpty()));
+			completionHandler.handle(Future.succeededFuture());
 		};
 	}
 
@@ -742,9 +752,9 @@ public class ServerGameContext extends GameContext implements Server {
 
 	@Override
 	@Suspendable
-	public void onGameEventWillFire(GameEvent event) {
-		super.onGameEventWillFire(event);
-		eventCounter.incrementAndGet();
+	public void onNotificationWillFire(Notification event) {
+		super.onNotificationWillFire(event);
+		notificationCounter.incrementAndGet();
 		// Do not build game state for events the client is not interested in
 		if (event.isClientInterested()) {
 			GameState gameStateCopy = getGameStateCopy();
@@ -756,9 +766,9 @@ public class ServerGameContext extends GameContext implements Server {
 
 	@Override
 	@Suspendable
-	public void onGameEventDidFire(GameEvent event) {
-		super.onGameEventDidFire(event);
-		if (eventCounter.decrementAndGet() == 0) {
+	public void onNotificationDidFire(Notification event) {
+		super.onNotificationDidFire(event);
+		if (notificationCounter.decrementAndGet() == 0) {
 			for (Client client : getClients()) {
 				client.lastEvent();
 			}
