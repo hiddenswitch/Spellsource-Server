@@ -2,7 +2,9 @@ package com.hiddenswitch.spellsource.tests.cards;
 
 import com.hiddenswitch.spellsource.testutils.CardValidation;
 import net.demilich.metastone.game.cards.Attribute;
+import net.demilich.metastone.game.cards.Card;
 import net.demilich.metastone.game.cards.CardCatalogue;
+import net.demilich.metastone.game.entities.minions.Minion;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -67,6 +69,20 @@ public class GlowTests extends TestBase {
 
 			assertFalse(context.getLogic().conditionMet(player.getId(), doesNotMeetCondition));
 
+		});
+	}
+
+	@Test
+	public void testPyriteMonarch() {
+		runGym((context, player, opponent) -> {
+			Card pyro = receiveCard(context, player, "minion_the_pyrite_monarch");
+
+			for (int i = 0; i < 10; i++) {
+				Minion min = playMinionCard(context, player, CardCatalogue.getOneOneNeutralMinionCardId());
+				destroy(context, min);
+			}
+
+			assertFalse(context.getLogic().conditionMet(player.getId(), pyro));
 		});
 	}
 }
